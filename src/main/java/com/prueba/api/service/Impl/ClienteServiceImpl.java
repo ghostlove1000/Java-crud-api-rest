@@ -62,17 +62,17 @@ public class ClienteServiceImpl implements IClienteService {
     @Transactional(readOnly = true)
     @Override
     public ResponseEntity<?> findById(Integer id) {
-        Cliente cliente = clienteDao.findById(id).orElse(null);
-        if (cliente == null) {
+        List<ClienteDto> clienteDtoList = new ArrayList<>();
+        if (!clienteDao.existsById(id)) {
             return new ResponseEntity<>(MensajeResponse.builder()
                     .mensanje("No se encontro el ID")
                     .object(null)
                     .build(), HttpStatus.NOT_FOUND);
         }
-        List<ClienteDto> clienteDtoList = new ArrayList<>();
+        clienteDtoList.add(Mappings.EntityAdto(clienteDao.findById(id).orElse(null)));
         return new ResponseEntity<>(MensajeResponse.builder()
                 .mensanje("Se ha encontrado")
-                .object(clienteDtoList.add(Mappings.EntityAdto(cliente)))
+                .object(clienteDtoList)
                 .build(), HttpStatus.OK);
     }
 
@@ -80,7 +80,6 @@ public class ClienteServiceImpl implements IClienteService {
     @Override
     public ResponseEntity<?> buscarAll() {
         List<Cliente> all = (List<Cliente>) clienteDao.findAll();
-
         if (all.isEmpty()){
             return new ResponseEntity<>(MensajeResponse.builder()
                     .mensanje("No se encontraron datos")
